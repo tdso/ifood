@@ -3,6 +3,7 @@ package com.tdso.ifood.cadastro.rest;
 import java.util.List;
 import java.util.Optional;
 
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -16,13 +17,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.arjuna.ats.internal.arjuna.recovery.PeriodicRecovery.Status;
 import com.tdso.ifood.cadastro.model.Restaurante;
+import com.tdso.ifood.cadastro.model.dto.AdicionarRestauranteDto;
+import com.tdso.ifood.cadastro.model.dto.RestauranteMapper;
 
 @Path("/restaurantes")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class RestauranteResource {
+
+    @Inject
+    RestauranteMapper restauranteMapper;
 
     @GET
     public List<Restaurante> getListaRestaurantes() {
@@ -31,8 +36,9 @@ public class RestauranteResource {
 
     @POST
     @Transactional
-    public Response adicionar(Restaurante dto) {
-        dto.persist();
+    public Response adicionar(AdicionarRestauranteDto dto) {
+        Restaurante restaurante = restauranteMapper.toRestaurante(dto);
+        restaurante.persist();
         return Response.status(javax.ws.rs.core.Response.Status.CREATED).build();
     }
 

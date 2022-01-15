@@ -14,6 +14,7 @@
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>2.6.2.Final</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+     <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -69,6 +70,11 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-jdbc-postgresql</artifactId>
     </dependency>
+    <dependency>
+        <groupId>org.mapstruct</groupId>
+        <artifactId>mapstruct</artifactId>
+        <version>${org.mapstruct.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -106,6 +112,25 @@
           </systemPropertyVariables>
         </configuration>
       </plugin>
+
+      <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <configuration>
+                <source>${compiler-plugin.version}</source> <!-- depending on your project -->
+                <target>${compiler-plugin.version}</target> <!-- depending on your project -->
+                <annotationProcessorPaths>
+                    <path>
+                        <groupId>org.mapstruct</groupId>
+                        <artifactId>mapstruct-processor</artifactId>
+                        <version>${org.mapstruct.version}</version>
+                    </path>
+                    <!-- other annotation processors -->
+                </annotationProcessorPaths>
+            </configuration>
+        </plugin>
+
     </plugins>
   </build>
   <profiles>
