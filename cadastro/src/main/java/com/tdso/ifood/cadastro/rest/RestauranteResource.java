@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -21,6 +23,9 @@ import com.tdso.ifood.cadastro.model.Restaurante;
 import com.tdso.ifood.cadastro.model.dto.AdicionarRestauranteDto;
 import com.tdso.ifood.cadastro.model.dto.RestauranteMapper;
 
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
+
 @Path("/restaurantes")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -28,6 +33,10 @@ public class RestauranteResource {
 
     @Inject
     RestauranteMapper restauranteMapper;
+
+    @Inject
+    @Channel("restaurantes")
+    Emitter<String> emitter;
 
     @GET
     public List<Restaurante> getListaRestaurantes() {
@@ -39,6 +48,10 @@ public class RestauranteResource {
     public Response adicionar(AdicionarRestauranteDto dto) {
         Restaurante restaurante = restauranteMapper.toRestaurante(dto);
         restaurante.persist();
+        Jsonb create = JsonbBuilder.create();
+        String json = create.toJson(restaurante);
+        emitter.send(json);
+
         return Response.status(javax.ws.rs.core.Response.Status.CREATED).build();
     }
 
