@@ -54,7 +54,7 @@ public class PratoResource {
     @DELETE
     @Transactional
     @Path("{id}")
-    private Response deletePrato(@PathParam("id") Long id) {
+    public Response deletePrato(@PathParam("id") Long id) {
         Optional<Prato> pratoOp = Prato.findByIdOptional(id);
         if (pratoOp.isEmpty())
             throw new NotFoundException();

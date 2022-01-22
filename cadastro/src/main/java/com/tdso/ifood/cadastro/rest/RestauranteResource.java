@@ -19,8 +19,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.tdso.ifood.cadastro.model.Prato;
 import com.tdso.ifood.cadastro.model.Restaurante;
+import com.tdso.ifood.cadastro.model.dto.AdicionarPratoDto;
 import com.tdso.ifood.cadastro.model.dto.AdicionarRestauranteDto;
+import com.tdso.ifood.cadastro.model.dto.PratoMapper;
 import com.tdso.ifood.cadastro.model.dto.RestauranteMapper;
 
 import org.eclipse.microprofile.reactive.messaging.Channel;
@@ -33,6 +36,9 @@ public class RestauranteResource {
 
     @Inject
     RestauranteMapper restauranteMapper;
+
+    @Inject
+    PratoMapper pratoMapper;
 
     @Inject
     @Channel("restaurantes")
@@ -76,5 +82,65 @@ public class RestauranteResource {
             throw new NotFoundException();
         });
     }
+
+    @GET
+    @Path("/pratos")
+    public List<Prato> getListaPratosRestaurantes(){
+        return Prato.listAll();
+    }
+
+    @PUT
+    @Path("{id}/prato/{id_prato}")
+    @Transactional
+    public void alterarPrato(@PathParam("id") Long id, @PathParam("id_prato") Long id_prato, AdicionarPratoDto dto) {
+        Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
+        if (restauranteOp.isEmpty())
+            throw new NotFoundException("Restaurante não encontrado !!");
+        
+        Optional<Prato> pratoOp = Prato.findByIdOptional(id_prato);
+        if (pratoOp.isEmpty())
+            throw new NotFoundException("Prato não encontrado !!");
+    
+        Prato prato = pratoOp.get();
+        
+        prato.nome = dto.nome;
+        prato.descricao = dto.descricao;
+        prato.preco = dto.preco;
+
+        prato.persist();
+    }
+
+    @DELETE
+    @Path("{id}/prato/{id_prato}")
+    @Transactional
+    public void excluiPrato(@PathParam("id") Long id, @PathParam("id_prato") Long id_prato) {
+        Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
+        if (restauranteOp.isEmpty())
+            throw new NotFoundException("Restaurante não encontrado !!");
+        
+        Optional<Prato> pratoOp = Prato.findByIdOptional(id_prato);
+        if (pratoOp.isEmpty())
+            throw new NotFoundException("Prato não encontrado !!");
+
+        Prato prato = pratoOp.get();
+        prato.delete();
+    }
+
+    @POST
+    @Path("{id}/prato")
+    @Transactional
+    public Response adicionarPrato(@PathParam("id") Long id, AdicionarPratoDto dto) {
+        Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
+        if (restauranteOp.isEmpty())
+            throw new NotFoundException("Restaurante inexistente ...");
+        Restaurante restaurante = restauranteOp.get();
+        Prato prato = pratoMapper.toPrato(dto);
+        prato.restaurante = restaurante;
+        prato.persist();
+
+        return Response.status(javax.ws.rs.core.Response.Status.CREATED).build();
+    }
+
+
 
 }
