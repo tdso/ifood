@@ -1,5 +1,6 @@
 package com.tdso.ifood.cadastro.rest;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,6 +8,7 @@ import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -25,6 +27,8 @@ import com.tdso.ifood.cadastro.model.dto.AdicionarPratoDto;
 import com.tdso.ifood.cadastro.model.dto.AdicionarRestauranteDto;
 import com.tdso.ifood.cadastro.model.dto.PratoMapper;
 import com.tdso.ifood.cadastro.model.dto.RestauranteMapper;
+import com.tdso.ifood.cadastro.repository.PratoRepository;
+import com.tdso.ifood.cadastro.repository.RestauranteRepository;
 
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
@@ -44,16 +48,22 @@ public class RestauranteResource {
     @Channel("restaurantes")
     Emitter<String> emitter;
 
+    @Inject
+    PratoRepository pratoRepository;
+
+    @Inject
+    RestauranteRepository restauranteRepository;
+
     @GET
     public List<Restaurante> getListaRestaurantes() {
-        return Restaurante.listAll();
+        return restauranteRepository.findAll();
     }
 
     @POST
     @Transactional
-    public Response adicionar(AdicionarRestauranteDto dto) {
+    public Response adicionar(@Valid AdicionarRestauranteDto dto) {
         Restaurante restaurante = restauranteMapper.toRestaurante(dto);
-        restaurante.persist();
+        restauranteRepository.save(restaurante);
         Jsonb create = JsonbBuilder.create();
         String json = create.toJson(restaurante);
         emitter.send(json);
@@ -65,82 +75,93 @@ public class RestauranteResource {
     @Path("{id}")
     @Transactional
     public void alterar(@PathParam("id") Long id, Restaurante dto) {
-        Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
+        Optional<Restaurante> restauranteOp = restauranteRepository.findById(id);
         if (restauranteOp.isEmpty())
             throw new NotFoundException();
         Restaurante restaurante = restauranteOp.get();
         restaurante.nome = dto.nome;
-        restaurante.persist();
+        restauranteRepository.save(restaurante);
     }
 
     @DELETE
     @Path("{id}")
     @Transactional
     public void excluir(@PathParam("id") Long id) {
-        Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
-        restauranteOp.ifPresentOrElse(Restaurante::delete, () -> {
+        Optional<Restaurante> restauranteOp = restauranteRepository.findById(id);
+        restauranteOp.ifPresentOrElse(restauranteRepository::delete, () -> {
             throw new NotFoundException();
         });
     }
 
     @GET
     @Path("/pratos")
-    public List<Prato> getListaPratosRestaurantes(){
-        return Prato.listAll();
+    public List<Prato> getListaPratos() {
+        return pratoRepository.findAll();
+    }
+
+    @GET
+    @Path("/{id}/pratos")
+    public List<Prato> getListaPratosRestaurante(@PathParam("id") Long id) {
+        Optional<Restaurante> restauranteOp = restauranteRepository.findById(id);
+        if (!restauranteOp.isPresent()) {
+            throw new NotFoundException("Restaurante nao encontrado !!");
+        }
+        List<Prato> pratos = new ArrayList<>();
+        pratos = pratoRepository.findByPratoPeloCodRestaurante(id);
+
+        return pratos;
     }
 
     @PUT
     @Path("{id}/prato/{id_prato}")
     @Transactional
     public void alterarPrato(@PathParam("id") Long id, @PathParam("id_prato") Long id_prato, AdicionarPratoDto dto) {
-        Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
+        Optional<Restaurante> restauranteOp = restauranteRepository.findById(id);
         if (restauranteOp.isEmpty())
             throw new NotFoundException("Restaurante não encontrado !!");
-        
-        Optional<Prato> pratoOp = Prato.findByIdOptional(id_prato);
+
+        Optional<Prato> pratoOp = pratoRepository.findById(id_prato);
         if (pratoOp.isEmpty())
             throw new NotFoundException("Prato não encontrado !!");
-    
+
         Prato prato = pratoOp.get();
-        
+
         prato.nome = dto.nome;
         prato.descricao = dto.descricao;
         prato.preco = dto.preco;
 
-        prato.persist();
+        pratoRepository.save(prato);
     }
 
     @DELETE
     @Path("{id}/prato/{id_prato}")
     @Transactional
     public void excluiPrato(@PathParam("id") Long id, @PathParam("id_prato") Long id_prato) {
-        Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
+        Optional<Restaurante> restauranteOp = restauranteRepository.findById(id);
         if (restauranteOp.isEmpty())
             throw new NotFoundException("Restaurante não encontrado !!");
-        
-        Optional<Prato> pratoOp = Prato.findByIdOptional(id_prato);
+
+        Optional<Prato> pratoOp = pratoRepository.findById(id_prato);
         if (pratoOp.isEmpty())
             throw new NotFoundException("Prato não encontrado !!");
 
         Prato prato = pratoOp.get();
-        prato.delete();
+        pratoRepository.delete(prato);
     }
 
     @POST
     @Path("{id}/prato")
     @Transactional
     public Response adicionarPrato(@PathParam("id") Long id, AdicionarPratoDto dto) {
-        Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
+        Optional<Restaurante> restauranteOp = restauranteRepository.findById(id);
         if (restauranteOp.isEmpty())
             throw new NotFoundException("Restaurante inexistente ...");
         Restaurante restaurante = restauranteOp.get();
         Prato prato = pratoMapper.toPrato(dto);
         prato.restaurante = restaurante;
-        prato.persist();
+        pratoRepository.save(prato);
 
         return Response.status(javax.ws.rs.core.Response.Status.CREATED).build();
     }
-
-
 
 }

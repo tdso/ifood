@@ -7,9 +7,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "cdi")
 public interface PratoMapper {
 
-
     public Prato toPrato(AdicionarPratoDto dto);
 
-
-    
 }
