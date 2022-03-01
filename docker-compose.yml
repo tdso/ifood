@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: cadastro
       POSTGRES_PASSWORD: cadastro
     ports:
-        - "5432:5432"
+      - "5432:5432"
 
   jaeger_ifood:
     container_name: jaeger_ifood
@@ -17,44 +17,62 @@ services:
       - "6831:6831/udp"
       - "6832:6832/udp"
       - "5778:5778"
-      - "16686:16686"  # aplicação roda nessa porta
+      - "16686:16686" # aplicação roda nessa porta
       - "14250:14250"
       - "14268:14268"
       - "9411:9411"
 
-  prometheus_ifood:
+  prometheus_ifood: # roda por default na 9090
     container_name: prometheus_ifood
-    image: prometheus_ifood
-    network_mode: "host"
+    image: prometheus_ifood_2
+    #extra_hosts:
+    #- "host.docker.internal:host-gateway"
+    network_mode: host
+    ports:
+      - 9090:9090
 
-  grafana_ifood:
+  grafana_ifood: # roda por default na 3000
     container_name: grafana_ifood
     image: grafana/grafana:6.5.0
-    network_mode: "host"
-        #  postgres_marketplace:
-          #    container_name: postgres_marketplace_ifood
-          #    image: postgres:12.2
-          #    environment:
-            #      POSTGRES_USER: marketplace
-            #      POSTGRES_PASSWORD: marketplace
-            #    ports:
-              #      - "5433:5432"
-              
-              #  keycloak_ifood:
-                #    container_name: keycloak_ifood
-                #    image: jboss/keycloak:9.0.2
-                #    environment:
-                  #      KEYCLOAK_USER: admin
-  #      KEYCLOAK_PASSWORD: admin
-  #    ports:
-    #      - "8180:8080"
-    
-    #  artemis_ifood:
-      #    container_name: artemis_ifood
-      #    image: vromero/activemq-artemis:2.11.0
-      #    network_mode: "host"
-      #    environment:
-        #      ARTEMIS_USERNAME: admin
-        #      ARTEMIS_PASSWORD: admin
-        
-        
+    #network_mode: "host"
+    #networks:
+    #  - ifood_default
+    ports:
+      - 3000:3000
+#networks:
+#  host:
+#    driver: bridge
+
+#ifood_cadastro: #
+#  build:
+#    context: "/home/tdso/kdi/workspaces/ws-quarkus/ifood"
+#    dockerfile: "./src/main/docker/Dockerfile.jvm"
+#  container_name: ifood_cadastro
+#  network_mode: "host"
+
+#  postgres_marketplace:
+#    container_name: postgres_marketplace_ifood
+#    image: postgres:12.2
+#    environment:
+#      POSTGRES_USER: marketplace
+#      POSTGRES_PASSWORD: marketplace
+#    ports:
+#      - "5433:5432"
+
+#  keycloak_ifood:
+#    container_name: keycloak_ifood
+#    image: jboss/keycloak:9.0.2
+#    environment:
+#      KEYCLOAK_USER: admin
+#      KEYCLOAK_PASSWORD: admin
+#    ports:
+#      - "8180:8080"
+
+#  artemis_ifood:
+#    container_name: artemis_ifood
+#    image: vromero/activemq-artemis:2.11.0
+#    network_mode: "host"
+#    environment:
+#      ARTEMIS_USERNAME: admin
+#      ARTEMIS_PASSWORD: admin
+
