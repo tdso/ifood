@@ -9,9 +9,19 @@ services:
     ports:
       - "5432:5432"
 
+  postgres_marketplace:
+    container_name: postgres_marketplace_ifood
+    image: postgres:12.2
+    environment:
+      POSTGRES_USER: marketplace
+      POSTGRES_PASSWORD: marketplace
+    ports:
+      - "5433:5432"
+
   jaeger_ifood:
     container_name: jaeger_ifood
     image: jaegertracing/all-in-one:1.17
+    network_mode: host
     ports:
       - "5775:5775/udp"
       - "6831:6831/udp"
@@ -22,23 +32,72 @@ services:
       - "14268:14268"
       - "9411:9411"
 
-  prometheus_ifood: # roda por default na 9090
-    container_name: prometheus_ifood
-    image: prometheus_ifood_2
-    #extra_hosts:
-    #- "host.docker.internal:host-gateway"
+  # prometheus_ifood: # roda por default na 9090
+  #   container_name: prometheus_ifood
+  #   image: prometheus_ifood_2
+  #   #extra_hosts:
+  #   #- "host.docker.internal:host-gateway"
+  #   network_mode: host
+  #   ports:
+  #     - 9090:9090
+
+  # grafana_ifood: # roda por default na 3000
+  #   container_name: grafana_ifood
+  #   image: grafana/grafana:6.5.0
+  #   network_mode: host
+  #   ports:
+  #     - 3000:3000
+
+  artemis_ifood: # roda por default na 8161
+    container_name: artemis_ifood
+    image: vromero/activemq-artemis:2.11.0
     network_mode: host
     ports:
-      - 9090:9090
+      - "5672:5672" # essa porta que deve ser informada no aplication properties
+      - "8161:8161" # console ferramenta
+      - "61616:61616"
+    environment:
+      ARTEMIS_USERNAME: admin
+      ARTEMIS_PASSWORD: admin
+  #
+  # zookeeper:
+  #   container_name: zookeeper_container
+  #   image: debezium/zookeeper:1.1
+  #   network_mode: host
+  #   ports:
+  #     - 2181:2181
+  #     - 2888:2888
+  #     - 3888:3888
 
-  grafana_ifood: # roda por default na 3000
-    container_name: grafana_ifood
-    image: grafana/grafana:6.5.0
-    #network_mode: "host"
-    #networks:
-    #  - ifood_default
-    ports:
-      - 3000:3000
+  # kafka:
+  #   container_name: kafka_container
+  #   image: debezium/kafka:1.1
+  #   network_mode: host
+  #   ports:
+  #     - 9092:9092
+  #     - 9093:9093
+  #   environment:
+  #     #- ZOOKEEPER_CONNECT=127.0.0.1:2181
+  #     - ZOOKEEPER_CONNECT=127.0.0.1:2181
+  #     - ALLOW_PLAINTEXT_LISTENER=yes
+  #     - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+  #     - KAFKA_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
+  #     - KAFKA_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
+  #     - KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT
+  #   depends_on:
+  #     - zookeeper
+
+  # kafdrop:
+  #   container_name: kafdrop_container
+  #   image: obsidiandynamics/kafdrop:3.24.0
+  #   network_mode: host
+  #   ports:
+  #     - 9000:9000
+  #   #environment:
+  #   #KAFKA_BROKERCONNECT: kafka0:9092
+  #   depends_on:
+  #     - kafka
+####
 #networks:
 #  host:
 #    driver: bridge
@@ -50,15 +109,6 @@ services:
 #  container_name: ifood_cadastro
 #  network_mode: "host"
 
-#  postgres_marketplace:
-#    container_name: postgres_marketplace_ifood
-#    image: postgres:12.2
-#    environment:
-#      POSTGRES_USER: marketplace
-#      POSTGRES_PASSWORD: marketplace
-#    ports:
-#      - "5433:5432"
-
 #  keycloak_ifood:
 #    container_name: keycloak_ifood
 #    image: jboss/keycloak:9.0.2
@@ -67,12 +117,4 @@ services:
 #      KEYCLOAK_PASSWORD: admin
 #    ports:
 #      - "8180:8080"
-
-#  artemis_ifood:
-#    container_name: artemis_ifood
-#    image: vromero/activemq-artemis:2.11.0
-#    network_mode: "host"
-#    environment:
-#      ARTEMIS_USERNAME: admin
-#      ARTEMIS_PASSWORD: admin
 

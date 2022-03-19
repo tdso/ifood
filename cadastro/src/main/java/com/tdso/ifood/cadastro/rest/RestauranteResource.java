@@ -30,6 +30,10 @@ import com.tdso.ifood.cadastro.model.dto.RestauranteMapper;
 import com.tdso.ifood.cadastro.repository.PratoRepository;
 import com.tdso.ifood.cadastro.repository.RestauranteRepository;
 
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.eclipse.microprofile.metrics.annotation.SimplyTimed;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 
@@ -55,15 +59,36 @@ public class RestauranteResource {
     RestauranteRepository restauranteRepository;
 
     @GET
+    @Counted(name = "count_get_restaurantes", description = "qtde requisicoes para este endpoint")
+    @Timed(name = "time_get_restaurante", description = "qtde de tempo para execucao endpoint get restaurante", unit = MetricUnits.MILLISECONDS)
     public List<Restaurante> getListaRestaurantes() {
         return restauranteRepository.findAll();
     }
 
+    @GET
+    @Path("{id}")
+    public Restaurante getId(@PathParam("id") Long id) {
+        Optional<Restaurante> restauranteOp = restauranteRepository.findById(id);
+        return restauranteOp.get();
+    }
+
+    @GET
+    @Path("/cnpj/{cnpj}/id/{id}")
+    public List<Restaurante> getRestCnpj(@PathParam("cnpj") String cnpj, @PathParam("id") String id) {
+        System.out.println("cnpj = " + cnpj);
+        System.out.println("id = " + id);
+        Long idlong = Long.parseLong(id);
+        List<Restaurante> lista = restauranteRepository.findByRestauranteCNPJ(cnpj, idlong);
+        return lista;
+    }
+
     @POST
     @Transactional
+    @Timed(name = "time_post_restaurante", description = "qtde de tempo para execucao endpoint get restaurante", unit = MetricUnits.MILLISECONDS)
     public Response adicionar(@Valid AdicionarRestauranteDto dto) {
         Restaurante restaurante = restauranteMapper.toRestaurante(dto);
         restauranteRepository.save(restaurante);
+
         Jsonb create = JsonbBuilder.create();
         String json = create.toJson(restaurante);
         emitter.send(json);

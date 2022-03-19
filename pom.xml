@@ -6,11 +6,7 @@
   <artifactId>ifood</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <modules>
-    <module>cadastro</module>
-    <module>marketplace</module>
-    <module>pedido</module>
-  </modules>
+  
   <properties>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
     <maven.compiler.release>11</maven.compiler.release>
@@ -32,7 +28,12 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-  <dependencies>
+  <modules>
+    <module>cadastro</module>
+    <module>marketplace</module>
+    <module>pedido</module>
+  </modules>
+  <!-- <dependencies>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-arc</artifactId>
@@ -71,7 +72,9 @@
       <artifactId>rest-assured</artifactId>
       <scope>test</scope>
     </dependency>
-  </dependencies>
+  </dependencies> -->
+  
+  <!--  
   <build>
     <plugins>
       <plugin>
@@ -146,4 +149,5 @@
       </properties>
     </profile>
   </profiles>
+  -->
 </project>
