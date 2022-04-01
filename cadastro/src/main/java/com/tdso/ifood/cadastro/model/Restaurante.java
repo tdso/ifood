@@ -14,14 +14,26 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
+
 @Table(name = "restaurante")
 public class Restaurante {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
+
     public String proprietario;
     public String cnpj;
     public String nome;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    public Localizacao localizacao;
+
+    @CreationTimestamp
+    public Date dataCriacao;
+
+    @UpdateTimestamp
+    public Date dataAtualizacao;
 
     public Long getId() {
         return id;
@@ -55,33 +67,39 @@ public class Restaurante {
         this.nome = nome;
     }
 
-    /*
-     * public Localizacao getLocalizacao() { return localizacao; }
-     * 
-     * public void setLocalizacao(Localizacao localizacao) { this.localizacao =
-     * localizacao; }
-     * 
-     * public Date getDataCriacao() { return dataCriacao; }
-     * 
-     * public void setDataCriacao(Date dataCriacao) { this.dataCriacao =
-     * dataCriacao; }
-     * 
-     * public Date getDataAtualizacao() { return dataAtualizacao; }
-     * 
-     * public void setDataAtualizacao(Date dataAtualizacao) { this.dataAtualizacao =
-     * dataAtualizacao; }
-     */
-    // public Restaurante(Long id, String proprietario, String cnpj, String nome,
-    // Localizacao localizacao,
-    // Date dataCriacao, Date dataAtualizacao) {
-    public Restaurante(Long id, String proprietario, String cnpj, String nome) {
+    public Localizacao getLocalizacao() {
+        return localizacao;
+    }
+
+    public void setLocalizacao(Localizacao localizacao) {
+        this.localizacao = localizacao;
+    }
+
+    public Date getDataCriacao() {
+        return dataCriacao;
+    }
+
+    public void setDataCriacao(Date dataCriacao) {
+        this.dataCriacao = dataCriacao;
+    }
+
+    public Date getDataAtualizacao() {
+        return dataAtualizacao;
+    }
+
+    public void setDataAtualizacao(Date dataAtualizacao) {
+        this.dataAtualizacao = dataAtualizacao;
+    }
+
+    public Restaurante(Long id, String proprietario, String cnpj, String nome, Localizacao localizacao,
+            Date dataCriacao, Date dataAtualizacao) {
         this.id = id;
         this.proprietario = proprietario;
         this.cnpj = cnpj;
         this.nome = nome;
-        // this.localizacao = localizacao;
-        // this.dataCriacao = dataCriacao;
-        // this.dataAtualizacao = dataAtualizacao;
+        this.localizacao = localizacao;
+        this.dataCriacao = dataCriacao;
+        this.dataAtualizacao = dataAtualizacao;
     }
 
     public Restaurante() {

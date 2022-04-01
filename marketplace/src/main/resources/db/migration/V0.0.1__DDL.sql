@@ -27,7 +27,12 @@ ALTER TABLE prato ADD CONSTRAINT prato_rest FOREIGN KEY (restaurante_id) REFEREN
 
 CREATE TABLE prato_cliente (
 	prato int,
-	cliente varchar(200)
+	cliente varchar(200)	
+);
+
+CREATE TABLE pratocarrinho (
+	usuario varchar(20),
+	prato int8
 );
 
 INSERT INTO localizacao (id, latitude, longitude) VALUES(1000, -15.817759, -47.836959);

@@ -188,5 +188,4 @@ public class RestauranteResource {
 
         return Response.status(javax.ws.rs.core.Response.Status.CREATED).build();
     }
-
 }

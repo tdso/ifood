@@ -11,10 +11,10 @@ public class PedidoDto {
 
     private Long id;
     private String texto;
+    private Restaurante restaurante;
+    private List<Prato> pratos = new ArrayList<>();
+    private BigDecimal total;
 
-    // public Restaurante restaurante;
-    // public List<Prato> pratos = new ArrayList<>();
-    // public BigDecimal total;
     public Long getId() {
         return id;
     }
@@ -29,6 +29,40 @@ public class PedidoDto {
 
     public void setTexto(String texto) {
         this.texto = texto;
+    }
+
+    public Restaurante getRestaurante() {
+        return restaurante;
+    }
+
+    public void setRestaurante(Restaurante restaurante) {
+        this.restaurante = restaurante;
+    }
+
+    public List<Prato> getPratos() {
+        return pratos;
+    }
+
+    public void setPratos(List<Prato> pratos) {
+        this.pratos = pratos;
+    }
+
+    public BigDecimal getTotal() {
+        return total;
+    }
+
+    public void setTotal(BigDecimal total) {
+        this.total = total;
+    }
+
+    public static PedidoDto from(PratoDto pratoDto) {
+        PedidoDto pedidoDto = new PedidoDto();
+        pedidoDto.setId(pratoDto.id);
+        // pedidoDto.setRestaurante(pratoDto.);
+        // pedidoDto.setPratos(pratos);
+
+        return pedidoDto;
+
     }
 
 }
